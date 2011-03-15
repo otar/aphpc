@@ -34,6 +34,10 @@ class Cache_Exception extends Exception
 
 /**
  * APC cache wrapper for PHP
+ * @author Otar Chekurishvili <otar@chekurishvili.com>
+ * @link http://twitter.com/ochekurishvili Follow author on Twitter
+ * @license http://www.opensource.org/licenses/mit-license The MIT License
+ * @version 1.0
  */
 class Cache
 {
@@ -126,6 +130,9 @@ class Cache
         return apc_clear_cache('user');
     }
 
+    /**
+     * Check for APC extension availability and create an instance.
+     */
     protected static function _initialize()
     {
         if (!extension_loaded('apc') OR !function_exists('apc_store'))
@@ -133,9 +140,16 @@ class Cache
         self::$instance = new self;
     }
 
+    /**
+     * Replace slashes and spaces with underscores for creating more stable cache item ID.
+     * @param string $key
+     * @return string
+     */
     protected function _sanitize($key)
     {
-        return str_replace(array('/', '\\', ' '), '_', $key);
+        if (!is_string($key))
+            throw new Cache_Exception('Cache key should be an unique string, no other types allowed.');
+        return str_replace(array('/', '\\', ' '), '_', trim($key));
     }
 
     private function __construct()
