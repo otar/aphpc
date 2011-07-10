@@ -2,7 +2,7 @@
 
 /*
  * The Steel Cache
- * APC cache wrapper for PHP
+ * APC wrapper for PHP
  *
  * Copyright (c) 2011 Otar Chekurishvili
  * http://twitter.com/ochekurishvili
@@ -33,15 +33,15 @@ class Cache_Exception extends Exception
 }
 
 /**
- * APC cache wrapper for PHP
+ * APC wrapper for PHP
  * @author Otar Chekurishvili <otar@chekurishvili.com>
  * @link http://twitter.com/ochekurishvili Follow author on Twitter
  * @license http://www.opensource.org/licenses/mit-license The MIT License
- * @version 1.0
+ * @version 1.1
  */
 class Cache
 {
-    const EXPIRE = 60,
+    const EXPIRE = 60, // An hour
     KEY = 'the_steel_cache_';
 
     private static $instance = NULL;
@@ -68,7 +68,7 @@ class Cache
         if (array_key_exists($key, $this->_storage))
                 return $this->_storage[$key];
         $cache = apc_fetch($this->_sanitize($key), $success);
-        return $success ? $cache : $default;
+        return $success ? $this->_storage[$key] = $cache : $default;
     }
 
     /**
@@ -85,13 +85,13 @@ class Cache
      * Set item in the cache for the limited time.
      * @param string $key Unique item ID.
      * @param mixed $value Value to be stored in the cache.
-     * @param integer $expire Cache lifetime in miliseconds, default is 3600 (1 hour).
+     * @param integer $expire Cache lifetime in minutes, default is 60 (1 hour).
      * @return boolean
      */
     public function set($key, $value, $expire = NULL)
     {
         NULL === $expire AND $expire = self::EXPIRE;
-        return apc_store($this->_sanitize($key), $value, $expire);
+        return apc_store($this->_sanitize($key), $value, $expire * 60);
     }
 
     /**
