@@ -41,9 +41,11 @@ class Cache_Exception extends Exception
  */
 class Cache
 {
-    const EXPIRE = 3600;
+    const EXPIRE = 60,
+    KEY = 'the_steel_cache_';
 
     private static $instance = NULL;
+    private $_storage = array();
 
     /**
      * Get instance of the Cache class.
@@ -63,6 +65,8 @@ class Cache
      */
     public function get($key, $default = FALSE)
     {
+        if (array_key_exists($key, $this->_storage))
+                return $this->_storage[$key];
         $cache = apc_fetch($this->_sanitize($key), $success);
         return $success ? $cache : $default;
     }
@@ -147,9 +151,7 @@ class Cache
      */
     protected function _sanitize($key)
     {
-        if (!is_string($key))
-            throw new Cache_Exception('Cache key should be an unique string, no other types allowed.');
-        return str_replace(array('/', '\\', ' '), '_', trim($key));
+        return self::KEY . str_replace(array('/', '\\', ' '), '_', trim((string) $key));
     }
 
     private function __construct()
